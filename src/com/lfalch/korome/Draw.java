@@ -28,6 +28,10 @@ public class Draw {
 	private static HashMap<String, Texture> cache;
 	private static int w, h;
 	
+	/*TODO:
+	 * - Switch away from intermediate mode.
+	 */
+	
 	public static void initialise(int width, int height){
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();

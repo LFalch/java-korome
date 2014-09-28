@@ -4,12 +4,12 @@ package com.lfalch.korome;
  * @author LFalch
  *
  */
-public class Body {
+public class CircularBody {
 	protected Vector position;
 	
 	protected double theta, radius;
 	
-	public Body(double angle, double x, double y, double radius) {
+	public CircularBody(double angle, double x, double y, double radius) {
 		theta = angle;
 		position = new Vector(x, y);
 		this.radius = radius;
@@ -24,19 +24,19 @@ public class Body {
 		return position;
 	}
 	
-	public static boolean collide(Body a, Body b){
+	public static boolean collide(CircularBody a, CircularBody b){
 		return a.getDistance(b) < a.radius + b.radius;
 	}
 	
-	public static double collision(Body a, Body b){
+	public static double collision(CircularBody a, CircularBody b){
 		return a.getDistance(b) - (a.radius + b.radius);
 	}
 	
-	public double getDistance(Body other){
+	public double getDistance(CircularBody other){
 		return this.getPosition().getDistance(other.getPosition());
 	}
 	
-	public double getDirection(Body other) {
+	public double getDirection(CircularBody other) {
 		return this.getPosition().getDirectionTowards(other.getPosition());
 	}
 }

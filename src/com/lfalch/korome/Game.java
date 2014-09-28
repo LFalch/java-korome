@@ -37,7 +37,8 @@ public class Game {
 	
 	private volatile boolean running;
 	
-	public String title = "Korome Game", version = "korome alpha";
+	public String title = "Korome Game", version = "korome A";
+	public final static String E_VERSION = "A";
 	
 	public Game() throws LWJGLException, IOException {
 		settings = new Settings("settings.properties");
@@ -142,7 +143,7 @@ public class Game {
 		try {
 			System.setErr(new PrintStream("error.log"));
 		} catch (FileNotFoundException fnfE) {}
-		System.err.println(title + " error log:\nVERSION: \"" + version + "\"");
+		System.err.println(title + " error log:\nVERSION: \"" + version + "\"\nENGINE VERSION : \"" + E_VERSION + "\"");
 		e.printStackTrace();
 		String err = e.getClass().getName() + ": " + e.getMessage();
 		for (StackTraceElement ste : e.getStackTrace())

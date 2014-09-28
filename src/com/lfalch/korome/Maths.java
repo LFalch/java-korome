@@ -20,10 +20,10 @@ public class Maths {
 	}
 	
 	public static double negative(double value){
-		return -value;
+		return  -value;
 	}
 	
-	public static double inverse(double value){
+	public static double inverse (double value){
 		return 1/value;
 	}
 	

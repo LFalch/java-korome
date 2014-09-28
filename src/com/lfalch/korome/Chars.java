@@ -7,7 +7,7 @@ import static org.lwjgl.opengl.GL11.glTexCoord2d;
 import static org.lwjgl.opengl.GL11.glVertex2d;
 import java.io.IOException;
 
-//Don't touch it it just... works :-D
+//Don't touch it, it just... works :D
 public class Chars {
 	private static final int width = 16, height = 16;
 	

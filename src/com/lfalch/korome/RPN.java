@@ -72,6 +72,7 @@ public class RPN {
 		default:
 			System.err.println("Operation \'" + op + "\' not recognised. Skipped.");
 		case '\"': //These are "comments"
+		case '\\':
 			break;
 		}
 		return stack;

@@ -34,14 +34,4 @@ public class TileSet{
 		WHITE.glSet();
 		Texture.unbind();
 	}
-	
-	public static TileSet power, data;
-	static{
-		try {
-			power = new TileSet("power", 3, 3);
-			data = new TileSet("data", 3, 3);
-		}catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 }
