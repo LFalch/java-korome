@@ -11,6 +11,6 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="false" exportJavaFiles="false" exportOutputFolder="true">
-        <javaElement handleIdentifier="=Korome Engine/src"/>
+        <javaElement handleIdentifier="=Korome Engine/src&lt;com.lfalch.korome"/>
     </selectedElements>
 </jardesc>

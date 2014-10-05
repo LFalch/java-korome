@@ -98,9 +98,9 @@ public class Game {
 				game.cleanup();
 			} catch (Exception ex) {
 				ex.printStackTrace();
-				String error = ex.getClass() + ": " + ex.getMessage() + "\n";
+				String error = ex.getClass() + ": " + ex.getMessage();
 				for (StackTraceElement ste : ex.getStackTrace())
-					error += "     at " + ste.toString() + "\n";
+					error += "\n     at " + ste.toString();
 				JOptionPane.showMessageDialog(null,
 						"A fatal error has occoured:\n" + error, "Fatal Error",
 						JOptionPane.ERROR_MESSAGE);
@@ -167,8 +167,8 @@ public class Game {
 		int mx = Mouse.getX();
 		int my = height - Mouse.getY();
 		
-		long time = (Sys.getTime() * 1000) / Sys.getTimerResolution();
-		double delta = (double) (time-lastTime) / 1000d;
+		long time = Sys.getTime() * 1000 / Sys.getTimerResolution();
+		double delta = (time-lastTime) / 1000d;
 		lastTime = time;
 		frames++;
 		

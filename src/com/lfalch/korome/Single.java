@@ -45,6 +45,7 @@ public class Single {
 			}
 			
 			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
+				@Override
 				public void run(){
 					try {
 						if(lock != null){
