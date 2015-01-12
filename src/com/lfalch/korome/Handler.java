@@ -1,6 +1,6 @@
 package com.lfalch.korome;
 
 
-public interface Handler {
-	public void handle(Object obj);
+public interface Handler<T> {
+	public void handle(T obj);
 }

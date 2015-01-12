@@ -12,5 +12,6 @@
     </manifest>
     <selectedElements exportClassFiles="false" exportJavaFiles="false" exportOutputFolder="true">
         <javaElement handleIdentifier="=Korome Engine/src&lt;com.lfalch.korome"/>
+        <javaElement handleIdentifier="=Korome Engine/src&lt;com.lfalch.korome.packets"/>
     </selectedElements>
 </jardesc>

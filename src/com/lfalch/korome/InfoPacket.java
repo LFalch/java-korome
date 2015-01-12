@@ -29,6 +29,8 @@ public class InfoPacket {
 	}
 	
 	public int getKeyEvent(int index) {
+		if(keyevents.length <= index)
+			return 0;
 		return keyevents[index];
 	}
 }

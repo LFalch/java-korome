@@ -9,23 +9,42 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import org.lwjgl.Sys;
 
-public class Server {
+public abstract class Server {
 	Settings settings;
 	double maxDelta;
 	int port, backlog;
 	
-	public String title = "Korome_MP", version = "1.0";
+	public String title = "Korome_MP", version = "test_1";
 	private long lastTime;
 	private ArrayList<Double> deltas;
 	private int frames;
 	private double deltaSum;
 	private boolean running;
+	private Handler<DoubleObject<String, Object>> variableModder;
+	private Handler<String> logger;
+	private Handler<Exception> crasher;
 	
 	private ServerSocket server;
 	
 	public Server() throws IOException{
-		System.setProperty("org.lwjgl.librarypath", System.getProperty("user.dir") + "/lib/natives");
-		Sys.initialize();
+		variableModder = new Handler<DoubleObject<String, Object>>() {
+			@Override
+			public void handle(DoubleObject<String, Object> obj) {
+				modfifyVariable(obj.o1, obj.o2);
+			}
+		};
+		logger = new Handler<String>() {
+			@Override
+			public void handle(String msg) {
+				consoleLog(msg);
+			}
+		};
+		crasher = new Handler<Exception>() {
+			@Override
+			public void handle(Exception e) {
+				crash(e);
+			}
+		};
 		
 		settings = new Settings("settings.properties");
 		
@@ -37,7 +56,7 @@ public class Server {
 		deltas = new ArrayList<Double>();
 	}
 	
-	public void logMsg(String msg){
+	public void consoleLog(String msg){
 		String time = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
 		System.out.printf("<%s>: %s\n", time, msg);
 	}
@@ -54,19 +73,9 @@ public class Server {
 		
 		while(running){
 			try {
-				logMsg("Waiting for client to connect.");
-				Client clientLink = new Client(server);
-				logMsg("Connection with client established (IP: " + clientLink.getIP() + ")");
-				clientLink.addLogger(new Handler(){
-					@Override
-					public void handle(Object obj) {
-						String msg = (String) obj;
-						logMsg(msg);
-					}
-				});
-				logMsg("Logger set");
-				clientLink.send(Client.PING, Maths.class);
-				logMsg("Test PING sent");
+				consoleLog("Waiting for client to connect.");
+				Client clientLink = new Client(server, variableModder, logger, crasher);
+				consoleLog("Connection with client established (IP: " + clientLink.getIP() + ")");
 			}
 			catch (IOException e) {
 				crash(e);
@@ -91,9 +100,10 @@ public class Server {
 			delta = maxDelta;
 	}
 	
-	public void serverLogic() {
-		
-	}
+	//Variable modifications sent to clients
+	public abstract void serverLogic();
+	
+	public abstract void modfifyVariable(String identifier, Object object);
 	
 	public void crash(Exception e){
 		try {
@@ -125,10 +135,8 @@ public class Server {
 			e.printStackTrace();
 		}
 		
-		double averageDelta = deltaSum / frames;
-		
-		System.out.println("Average delta: " + averageDelta);
-		System.out.println("Average FPS: " + (1/averageDelta));
+		System.out.println("Average delta: " + (deltaSum / frames));
+		System.out.println("Average FPS: " + (frames / deltaSum));
 		System.out.println("Total frames: " + frames);
 		System.out.println("Runtime: " + (deltaSum));
 		

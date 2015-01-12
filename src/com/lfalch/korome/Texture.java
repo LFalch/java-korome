@@ -58,7 +58,7 @@ public class Texture {
 		double low = Math.atan2(height/2, width/2);
 		double high = Math.atan2(height/2, -(width/2));
 		
-		//Finder hvert punkt i rektanglen gvor ul er øverste-venstre, ur er øverste-højre, ll er nederste-venstre og lr er nederste-højre.
+		//Finder hvert punkt i rektanglen hvor ul er øverste-venstre, ur er øverste-højre, ll er nederste-venstre og lr er nederste-højre.
 		Vector ul = new Vector(x + Math.cos(theta-high) * halfdiameter, y + Math.sin(theta-high) * halfdiameter);
 		Vector ur = new Vector(x + Math.cos(theta-low) * halfdiameter, y + Math.sin(theta-low) * halfdiameter);
 		Vector ll = new Vector(x + Math.cos(theta+high) * halfdiameter, y + Math.sin(theta+high) * halfdiameter);

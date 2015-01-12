@@ -5,35 +5,58 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
+import com.lfalch.korome.packets.Disconnect;
+import com.lfalch.korome.packets.Handshake;
+import com.lfalch.korome.packets.IPacket;
+import com.lfalch.korome.packets.Packets;
+import com.lfalch.korome.packets.Success;
+import com.lfalch.korome.packets.VarMod;
 
 
 public class Client {
 	private Socket connection;
 	private ObjectOutputStream output;
 	private ObjectInputStream input;
-	private HashMap<String, Object> variables;
-	private Handler logger;
+	private Handler<String> logger;
+	private Handler<DoubleObject<String, Object>> varModder;
+	private Handler<Exception> crashHandler;
 	
-	public boolean crash = false;
-	public Exception crashCause;
 	public Thread listener;
+	
+	private class Break extends Throwable{private static final long serialVersionUID = 6175309303027039644L;}
 
-	public Client(ServerSocket serversocket) throws IOException {
+	public Client(ServerSocket serversocket, Handler<DoubleObject<String, Object>> variableModder, Handler<String> logger, Handler<Exception> crasher) throws IOException {
 		connection = serversocket.accept();
 		
 		output = new ObjectOutputStream(connection.getOutputStream());
 		output.flush();
 		input = new ObjectInputStream(connection.getInputStream());
 		
-		variables = new HashMap<String, Object>();
+		this.varModder = variableModder;
+		this.logger = logger;
+		
+		try {
+			Object handshake = input.readObject();
+			if(handshake instanceof Handshake)
+				if(((Handshake) handshake).version == Handshake.PROTOCOL_VERSION){
+					send(new Handshake(Handshake.PROTOCOL_VERSION));
+					throw new Break();
+				}
+			send(new Disconnect(Disconnect.Reason.INVALID_VERSION));
+			log("Client had an invalid version, disconnecting them.");
+			running = false;//The listener thread should then just clean up the streams.
+		}catch (Break e){}
+		catch (ClassNotFoundException e) {
+			send(new Disconnect(Disconnect.Reason.SYNTAX_ERROR));
+			log("Class not found, disconnecting client.");
+			running = false;//The listener thread should then just clean up the streams.
+		}
 		
 		listener = new Thread(new Listener(), getIP() + "_listener");
 		listener.start();
 	}
 	
-	public void send(int type, Object packet) throws IOException{
-		output.writeInt(type);
+	public void send(IPacket packet) throws IOException{
 		output.writeObject(packet);
 		output.flush();
 	}
@@ -41,73 +64,81 @@ public class Client {
 	public String getIP(){
 		return connection.getInetAddress().getHostAddress();
 	}
-	public static final int PROTOCOL_VERSION = 1000, PING = 0, HANDSHAKE = 1, MSG = 2, VAR_MOD = 5, CONFIRM = 10;
-	
 	public boolean running = true;
 	
 	private class Listener implements Runnable{
 		@Override
 		public void run() {
-			while (running && !crash)
+			while (running)
 				try {
-					int type = input.readInt();
-					Object packet = input.readObject();
+					Object rawPacket = input.readObject();
 					
-					if(logger != null)
-						logger.handle("[" + type + "]: " + packet.toString());
-					
-					switch (type) {
-					case PING:
-						send(PING, packet);
-						break;
-					case HANDSHAKE:
-						if (packet instanceof Integer)
-							if ((Integer) packet == PROTOCOL_VERSION) {
-								send(HANDSHAKE, PROTOCOL_VERSION);
-								break;
-							}
-						send(HANDSHAKE, "REJECT");
+					if(!(rawPacket instanceof IPacket)){
+						send(new Disconnect(Disconnect.Reason.SYNTAX_ERROR));
 						disconnect();
-						break;
-					case MSG:
-						break;
-					case VAR_MOD:
-						if(!(packet instanceof Object[]))
-							disconnect();
-						Object[] oArray = (Object[]) packet;
-						if(oArray.length < 2 || !(oArray[0] instanceof String))
-							disconnect();
+					}else{
+						IPacket packet = (IPacket) rawPacket;
 						
-						variables.put((String) oArray[0], oArray[1]);
-						send(CONFIRM, VAR_MOD);
-						break;
+						switch(Packets.valueOf(packet.getClass().getSimpleName().toUpperCase())){
+						case VARMOD:
+							VarMod variable2Mod = (VarMod) packet;
+							modifyVariable(variable2Mod.id, variable2Mod.var);
+							
+							send(new Success());
+							break;
+						case SUCCESS:
+							break; //Ignored -- just means something is good
+						default:
+							log("Syntax error, disconnecting client.");
+							send(new Disconnect(Disconnect.Reason.SYNTAX_ERROR));
+						case DISCONNECT:
+							disconnect();
+							log("Disconnected.");
+							break;
+						}
 					}
 				}
 				catch (IOException e) {
-					e.printStackTrace();
+					crash(e);
 				}
 				catch (ClassNotFoundException e) {
-					crash = true;
-					crashCause = e;
+					log("Syntax error, disconnecting client.");
+					try {
+						send(new Disconnect(Disconnect.Reason.SYNTAX_ERROR));
+						disconnect();
+					}
+					catch (IOException e2) {
+						crash(e2);
+					}
 				}
 				try {
 					disconnect();
 				}
 				catch (IOException e) {
-					crash = true;
-					crashCause = e;
+					crash(e);
 				}
 		}
-
-		public void disconnect() throws IOException {
-			running = false;
-			connection.close();
-			output.close();
-			input.close();
-		}
+	}
+	
+	private void modifyVariable(String identifier, Object variable){
+		varModder.handle(new DoubleObject<String, Object>(identifier, variable));
+	}
+	
+	private void log(String message){
+		logger.handle(message);
+	}
+	
+	public void crash(Exception e){
+		try {
+			disconnect();
+		}catch (IOException e1) {log("Disconnect failed under crash.");}
+		crashHandler.handle(e);
 	}
 
-	public void addLogger(Handler handler) {
-		logger = handler;
+	public void disconnect() throws IOException {
+		running = false;
+		connection.close();
+		output.close();
+		input.close();
 	}
 }
