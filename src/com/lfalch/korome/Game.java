@@ -29,9 +29,9 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.Util;
 
 public class Game {
-	private Settings settings;
+	protected static Settings settings;
 	
-	private boolean fullscreen, vsync;
+	protected boolean fullscreen, vsync;
 	protected int width, height, fps;
 	private double maxDelta;
 	
