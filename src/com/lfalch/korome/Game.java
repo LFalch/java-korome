@@ -39,6 +39,7 @@ public class Game {
 	
 	public String title = "Korome Game", version = "korome A";
 	public final static String E_VERSION = "A";
+	public boolean deltalog;
 	
 	public Game() throws LWJGLException, IOException {
 		settings = new Settings("settings.properties");
@@ -56,6 +57,8 @@ public class Game {
 		width = Integer.valueOf(resolution[0]);
 		
 		height = Integer.valueOf(resolution[1]);
+		
+		deltalog = Boolean.parseBoolean(settings.get("deltalog", "false"));
 		
 		defaultFocus = new Vector(width/2, height/2);
 		setFocus(defaultFocus);
@@ -243,14 +246,15 @@ public class Game {
 		System.out.println("Total frames: " + frames);
 		System.out.println("Runtime: " + (deltaSum));
 		
-		try {
-			PrintStream deltaLog = new PrintStream("deltas.log");
-			for(Double d: deltas)
-				deltaLog.println(d);
-			deltaLog.close();
-		}catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		if(deltalog)
+			try{
+				PrintStream deltaLog = new PrintStream("deltas.log");
+				for (Double d : deltas)
+					deltaLog.println(d);
+				deltaLog.close();
+			}catch(FileNotFoundException e){
+				e.printStackTrace();
+			}
 	}
 	
 	public void setDisplayMode() throws LWJGLException{
