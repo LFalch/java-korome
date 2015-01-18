@@ -38,7 +38,6 @@ public class Game {
 	private volatile boolean running;
 	
 	public String title = "Korome Game", version = "korome A";
-	public final static String E_VERSION = "A_MP";
 	public final static String E_VERSION = "A";
 	public boolean deltalog;
 	
