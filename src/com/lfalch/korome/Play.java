@@ -21,7 +21,7 @@ public class Play {
 	}
 	
 	private static Sound newSound(String fileName, boolean loop) throws FileNotFoundException{
-		Sound newSnd = null;
+		Sound newSnd;
 		newSnd = new Sound(fileName, loop);
 		cache.put(fileName, newSnd);
 		

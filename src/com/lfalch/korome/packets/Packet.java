@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.util.Arrays;
+import com.lfalch.korome.Tools;
 
 public class Packet {
 	public final static String version = "0.1";
@@ -55,24 +55,13 @@ public class Packet {
 		DatagramPacket packet = new DatagramPacket(buf, buf.length);
 		socket.receive(packet);
 		
-		buf = trim(buf);
+		buf = Tools.trimByteArray(buf);
 		packet.setData(buf);
 		packet.setLength(buf.length);
 		
 		return new Packet(packet);
 	}
 	
-	public static byte[] trim(byte[] bytes)
-	{
-	    int i = bytes.length - 1;
-	    while (i >= 0 && bytes[i] == 0)
-	    {
-	        --i;
-	    }
-
-	    return Arrays.copyOf(bytes, i + 1);
-	}
-
 	public InetAddress getAddress() {
 		if(received != null)
 			return received.getAddress();

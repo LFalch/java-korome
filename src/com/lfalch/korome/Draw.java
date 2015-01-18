@@ -57,7 +57,7 @@ public class Draw {
 	}
 	
 	private static Texture newTexture(String fileName) throws IOException{
-		Texture newTex = null;
+		Texture newTex;
 		newTex = new Texture("resources/" + fileName + ".png");
 		cache.put(fileName, newTex);
 		
