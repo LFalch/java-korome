@@ -66,7 +66,8 @@ public class Draw {
 	
 	public static void clearCache(){
 		for(Texture texture: cache.values())
-			texture.delete();
+			texture.close();
+		
 		cache = new HashMap<String, Texture>();
 	}
 	
